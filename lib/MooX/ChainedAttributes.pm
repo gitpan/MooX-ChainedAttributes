@@ -1,5 +1,5 @@
 package MooX::ChainedAttributes;
-$MooX::ChainedAttributes::VERSION = '0.01';
+$MooX::ChainedAttributes::VERSION = '0.02';
 use strictures 1;
 
 =head1 NAME
@@ -16,6 +16,12 @@ MooX::ChainedAttributes - Make your attributes chainable.
         is      => 'rw',
         chained => 1,
     );
+    
+    has age => (
+        is => 'rw',
+    );
+    
+    chain('age');
     
     sub who {
         my ($self) = @_;
@@ -51,29 +57,47 @@ To port the above to L<Moo> just change it to:
 
 =cut
 
+use Class::Method::Modifiers qw( install_modifier );
+
 sub import {
     my $target = caller();
 
     my $around = $target->can('around');
+    my $fresh = sub{ install_modifier( $target, 'fresh', @_ ) };
+
+    $fresh->(
+        chain => sub{
+            my ($methods) = @_;
+            $methods = [$methods] if !ref $methods;
+
+            foreach my $method ($methods) {
+                $around->(
+                    $method => sub{
+                        my $orig = shift;
+                        my $self = shift;
+                        return $self->$orig() if !@_;
+                        $self->$orig( @_ );
+                        return $self;
+                    },
+                );
+            }
+        },
+    );
+
+    my $chain = $target->can('chain');
 
     $around->(
         has => sub{
             my ($orig, $name, %attributes) = @_;
 
-            my $chained = delete $attributes{chained};
+            my $methods = delete $attributes{chained};
             $orig->( $name, %attributes );
-            return if !$chained;
+            return if !$methods;
 
             my $writer = $attributes{writer} || $name;
-            $around->(
-                $writer => sub{
-                    my $orig = shift;
-                    my $self = shift;
-                    return $self->$orig() if !@_;
-                    $self->$orig( @_ );
-                    return $self;
-                },
-            );
+
+            $chain->( $writer );
+
             return;
         },
     );

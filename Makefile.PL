@@ -21,12 +21,13 @@ my %WriteMakefileArgs = (
   "LICENSE" => "perl",
   "NAME" => "MooX::ChainedAttributes",
   "PREREQ_PM" => {
-    "Moo" => "1.004005"
+    "Moo" => "1.004005",
+    "strictures" => "1.004004"
   },
   "TEST_REQUIRES" => {
     "Test::Simple" => "0.94"
   },
-  "VERSION" => "0.01",
+  "VERSION" => "0.02",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -35,7 +36,8 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "Moo" => "1.004005",
-  "Test::Simple" => "0.94"
+  "Test::Simple" => "0.94",
+  "strictures" => "1.004004"
 );
 
 

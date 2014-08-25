@@ -1,5 +1,9 @@
 Revision history for Perl extension MooX::ChainedAttributes.
 
+0.02      2014-08-25
+ - Add a chain() function, like how MooX::AliasedAttributes has an alias()
+   function.
+
 0.01      2014-08-22
  - First release.
 
