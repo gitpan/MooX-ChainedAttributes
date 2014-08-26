@@ -20,4 +20,4 @@ resources:
   bugtracker: https://github.com/bluefeet/MooX-ChainedAttributes/issues
   homepage: https://github.com/bluefeet/MooX-ChainedAttributes
   repository: https://github.com/bluefeet/MooX-ChainedAttributes.git
-version: '0.02'
+version: '0.03'

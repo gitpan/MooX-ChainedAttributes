@@ -1,5 +1,5 @@
 package MooX::ChainedAttributes;
-$MooX::ChainedAttributes::VERSION = '0.02';
+$MooX::ChainedAttributes::VERSION = '0.03';
 use strictures 1;
 
 =head1 NAME
@@ -58,6 +58,7 @@ To port the above to L<Moo> just change it to:
 =cut
 
 use Class::Method::Modifiers qw( install_modifier );
+use Carp qw( croak );
 
 sub import {
     my $target = caller();
@@ -90,11 +91,15 @@ sub import {
         has => sub{
             my ($orig, $name, %attributes) = @_;
 
-            my $methods = delete $attributes{chained};
+            my $chained = delete $attributes{chained};
             $orig->( $name, %attributes );
-            return if !$methods;
+            return if !$chained;
 
-            my $writer = $attributes{writer} || $name;
+            my $is = $attributes{is};
+            my $writer = $attributes{writer};
+            $writer ||= "_set_$name" if $is eq 'rwp';
+            $writer ||= $name if $is eq 'rw';
+            croak 'Cannot set chained on an attribute without a writer' if !$writer;
 
             $chain->( $writer );
 
